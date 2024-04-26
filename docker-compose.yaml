@@ -1,0 +1,33 @@
+services:
+  db:
+    container_name: proveEksamenDB
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Passord01
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - proveVolum:/var/lib/postgresql/data
+  server:
+    container_name: proveEksamenWeb
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          target: /app
+          ignore: 
+            - node_modules
+            - .nuxt
+        - action: rebuild
+          path: package.json
+
+volumes:
+  proveVolum:
+    

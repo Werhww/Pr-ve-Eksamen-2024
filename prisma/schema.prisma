@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+}
+
+model Class {
+  id          Int   @id @default(autoincrement())
+  grade       Grade
+  students    Student[]
+  teachers     Staff[]
+}
+
+model Student {
+  id      Int  @id @default(autoincrement())
+  classId Int?
+  class   Class?   @relation(fields: [classId], references: [id])
+  personal PersonalInfo?  
+  role     Roles @default(ELEV)
+  username String @unique
+  password String
+}
+
+model Staff {
+  id       Int   @id @default(autoincrement())
+  classes  Class[]
+  role     Roles
+  username String @unique
+  password String
+  personal PersonalInfo?
+}
+
+model PersonalInfo {
+  id      Int  @id @default(autoincrement())
+  firstname String?
+  lastname  String?
+  address String?
+  phone   String?
+  ExtraInfo String?
+
+  computer Computers?
+
+  student Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId Int? @unique
+
+  staff Staff? @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  staffId Int? @unique
+}
+
+model Computers {
+  id Int @id @default(autoincrement())
+  personal PersonalInfo? @relation(fields: [personalId], references: [id], onDelete: Cascade)
+  personalId Int? @unique
+
+  pcId String @unique
+  pcModel String
+  pcAge String
+}
+
+enum Grade {
+  VG1
+  VG2
+  VG3
+}
+
+enum Roles {
+  ELEV
+  LERER
+  MILJOFAGARBEIDER
+  ADMIN
+  IT
+}
